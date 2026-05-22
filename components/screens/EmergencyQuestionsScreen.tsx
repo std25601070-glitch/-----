@@ -50,7 +50,7 @@ const emergencyQuestions = [
     warningLevel: 'critical'
   },
   { 
-    id: 'severebleeding' as const, 
+    id: 'severeBleeding' as const,
     icon: Droplets, 
     color: 'from-rose-500 to-red-600',
     questionEn: 'Do you have severe bleeding?', 
@@ -112,14 +112,12 @@ export function EmergencyQuestionsScreen({
 
   return (
     <div className="min-h-screen px-6 py-8 relative overflow-hidden">
-      {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-red-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/3 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -136,7 +134,6 @@ export function EmergencyQuestionsScreen({
           </p>
         </motion.div>
 
-        {/* Critical Warning Banner */}
         {hasCritical && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -163,7 +160,6 @@ export function EmergencyQuestionsScreen({
           </motion.div>
         )}
 
-        {/* Questions Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -193,14 +189,11 @@ export function EmergencyQuestionsScreen({
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  {/* Icon */}
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${q.color} p-3 flex-shrink-0 ${
                     isSelected ? 'shadow-lg' : 'opacity-80'
                   }`}>
                     <Icon className="w-full h-full text-white" />
                   </div>
-
-                  {/* Question Text */}
                   <div className="flex-1">
                     <p className={`font-medium ${isSelected ? 'text-white' : 'text-sky-200'}`}>
                       {q.questionEn}
@@ -209,9 +202,7 @@ export function EmergencyQuestionsScreen({
                       {q.questionAr}
                     </p>
                   </div>
-
-                  {/* Yes/No Indicator */}
-                  <div className={`flex gap-2 flex-shrink-0`}>
+                  <div className="flex gap-2 flex-shrink-0">
                     <span className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                       isSelected 
                         ? 'bg-red-500 text-white' 
@@ -233,7 +224,6 @@ export function EmergencyQuestionsScreen({
           })}
         </motion.div>
 
-        {/* Disclaimer */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -254,7 +244,6 @@ export function EmergencyQuestionsScreen({
           </div>
         </motion.div>
 
-        {/* Navigation */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
