@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Footer } from '@/components/Footer'
 import './globals.css'
 
 const inter = Inter({ 
@@ -31,8 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" dir="ltr" className="bg-background">
-      <body className={`${inter.variable} font-sans antialiased min-h-screen bg-gradient-to-br from-[#0a1628] via-[#0f1d32] to-[#0a1628]`}>
+      <body className={`${inter.variable} font-sans antialiased min-h-screen bg-gradient-to-br from-[#0a1628] via-[#0f1d32] to-[#0a1628] flex flex-col`}>
         {children}
+        <Footer />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
