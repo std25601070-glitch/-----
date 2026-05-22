@@ -13,7 +13,7 @@ export function Footer() {
           {/* University Logo */}
           <div className="flex items-center gap-4">
             <Image
-              src="/university-logo.png"
+              src="/AA38C765-5862-4B12-B544-71C32697FD80.PNG"
               alt="Al-Mustaqbal University"
               width={70}
               height={70}
@@ -31,7 +31,7 @@ export function Footer() {
           {/* College Logo */}
           <div className="flex items-center gap-4">
             <Image
-              src="/college-logo.png"
+              src="/الكلية التقنية الهندسية.png"
               alt="College of Technical Engineering"
               width={70}
               height={70}
@@ -49,7 +49,7 @@ export function Footer() {
         {/* Divider */}
         <div className="border-t border-white/10 pt-4">
           
-          {/* Supervisors */}
+          {/* Supervisors + Students */}
           <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
             <div>
               <p className="text-sky-400/80 text-xs font-semibold mb-1 uppercase tracking-wider">
@@ -57,8 +57,6 @@ export function Footer() {
               </p>
               <p className="text-white/80 text-sm">د. زهراء هاشم &nbsp;|&nbsp; أ. حمزة وليد</p>
             </div>
-            
-            {/* Students */}
             <div className="md:text-right">
               <p className="text-sky-400/80 text-xs font-semibold mb-1 uppercase tracking-wider">
                 Students / الطلاب
@@ -72,7 +70,7 @@ export function Footer() {
           {/* Copyright */}
           <div className="text-center border-t border-white/5 pt-3">
             <p className="text-white/30 text-xs">
-              © {new Date().getFullYear()} NURAI Medical Assistant — Al-Mustaqbal University. All rights reserved.
+              © {new Date().getFullYear()} VitaARM Medical Assistant — Al-Mustaqbal University. All rights reserved.
             </p>
             <p className="text-white/20 text-xs arabic-text mt-0.5">
               جميع الحقوق محفوظة — جامعة المستقبل
