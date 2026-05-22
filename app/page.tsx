@@ -68,6 +68,7 @@ const defaultMedicalHistory: MedicalHistory = {
   chronicDisease: false,
   chronicDiseaseDetails: '',
   takingMedications: false,
+  locationDetails: '', // عدلت هنا لتوافق مع الأنواع المعتادة إذا لزم الأمر
   medicationDetails: '',
   medicationAllergies: false,
   allergyDetails: '',
@@ -83,6 +84,33 @@ export default function NuraiMedicalAssistant() {
   const [emergencyAnswers, setEmergencyAnswers] = useState<EmergencyAnswers>(defaultEmergencyAnswers)
   const [medicalHistory, setMedicalHistory] = useState<MedicalHistory>(defaultMedicalHistory)
   const [vitalSigns, setVitalSigns] = useState<VitalSigns>(defaultVitalSigns)
+
+  // 🔔 دالة إرسال الإشعار الذكي عند انتهاء الفحص
+  const triggerNotificationAlert = async (vitals: VitalSigns, info: PatientInfo) => {
+    try {
+      let alertTitle = "📊 تقرير طبي جديد: NURAI";
+      let alertMessage = `المريض: ${info.fullName || 'غير مسجل'}\nالنبض: ${vitals.heartRate || '--'} BPM\nالحرارة: ${vitals.temperature || '--'}°C\nالأكسجين: ${vitals.oxygenLevel || '--'}%`;
+
+      // ميزة ذكية: لو الحساسات قرأت حرارة عالية، يتغير نص الإشعار فوراً لتنبيه عاجل
+      if (parseFloat(vitals.temperature) > 38) {
+        alertTitle = "⚠️ تنبيه طبي عاجل من NURAI";
+        alertMessage = `🚨 تم رصد ارتفاع حاد في درجة حرارة المريض: ${info.fullName} (${vitals.temperature}°C)!`;
+      }
+
+      // إرسال الإشعار لسيرفر الـ Node.js ليقوم بدفعه للـ PWA وللبوت
+      await fetch('http://localhost:5000/send-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: alertTitle,
+          message: alertMessage
+        })
+      });
+      console.log('Notification sent successfully!');
+    } catch (error) {
+      console.error('Failed to dispatch push notification:', error);
+    }
+  }
 
   const resetAssessment = () => {
     setPatientInfo(defaultPatientInfo)
@@ -167,7 +195,11 @@ export default function NuraiMedicalAssistant() {
             <VitalSignsScreen
               vitalSigns={vitalSigns}
               setVitalSigns={setVitalSigns}
-              onNext={() => setCurrentScreen('results')}
+              onNext={() => {
+                // تفعيل الإشعار فور الانتقال لشاشة النتائج
+                triggerNotificationAlert(vitalSigns, patientInfo);
+                setCurrentScreen('results');
+              }}
               onBack={() => setCurrentScreen('medical-history')}
             />
           </motion.div>
