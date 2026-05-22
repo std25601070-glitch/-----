@@ -16,7 +16,6 @@ export interface SymptomDetail {
   aggravatingFactors: string
   relievingFactors: string
   associatedSymptoms: string
-  // Symptom-specific questions
   specificAnswers: Record<string, string>
 }
 
@@ -24,7 +23,7 @@ export interface EmergencyAnswers {
   chestPain: boolean
   shortnessOfBreath: boolean
   fainted: boolean
-  severebleeding: boolean
+  severeBleeding: boolean
   suddenHeadache: boolean
   onesideWeakness: boolean
   blueLips: boolean
