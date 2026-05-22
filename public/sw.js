@@ -41,22 +41,37 @@ self.addEventListener('fetch', (event) => {
     })
   )
 })
-// الاستماع لحدث وصول الإشعار من السيرفر
+
+// الاستماع لحدث وصول الإشعار من السيرفر (نسخة آمنة ومحدثة)
 self.addEventListener('push', (event) => {
-  const data = event.data.json();
-  
+  let title = 'تنبيه طبي عاجل';
+  let body = 'تم تحديث بياناتك الطبية بنجاح.';
+
+  // حماية: التحقق من أن السيرفر أرسل بيانات بالفعل
+  if (event.data) {
+    try {
+      // محاولة قراءة البيانات كـ JSON
+      const data = event.data.json();
+      title = data.title || title;
+      body = data.body || body;
+    } catch (e) {
+      // إذا فشل وقرأها كنص عادي (Plain Text)
+      body = event.data.text();
+    }
+  }
+
   const options = {
-    body: data.body,
-    icon: '/icons/icon-192x192.png', // غيره لمسار لوجو مشروعك
-    badge: '/icons/badge.png',        // أيقونة صغيرة تظهر في شريط التنبيهات علوياً
-    vibrate: [200, 100, 200],          // نمط الاهتزاز في الهواتف
+    body: body,
+    icon: '/icon-light-32x32.png', // تم تعديل المسار ليتطابق مع الـ Cache بالاعلى
+    badge: '/icon-light-32x32.png', 
+    vibrate: [200, 100, 200],
     data: {
-      url: '/' // الصفحة التي سيفتحها المستخدم عند الضغط على الإشعار
+      url: '/' 
     }
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(title, options)
   );
 });
 
