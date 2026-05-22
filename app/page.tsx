@@ -32,92 +32,65 @@ const pageTransition = {
   duration: 0.3
 }
 
+const defaultEmergencyAnswers: EmergencyAnswers = {
+  chestPain: false,
+  shortnessOfBreath: false,
+  fainted: false,
+  severeBleeding: false,
+  suddenHeadache: false,
+  onesideWeakness: false,
+  blueLips: false,
+  pregnant: false
+}
+
+const defaultPatientInfo: PatientInfo = {
+  fullName: '',
+  age: '',
+  gender: '',
+  patientId: '',
+  mainComplaint: ''
+}
+
+const defaultVitalSigns: VitalSigns = {
+  temperature: '',
+  heartRate: '',
+  bloodPressureSystolic: '',
+  bloodPressureDiastolic: '',
+  oxygenLevel: ''
+}
+
+const defaultMedicalHistory: MedicalHistory = {
+  diabetes: false,
+  highBloodPressure: false,
+  heartDisease: false,
+  asthmaOrLungDisease: false,
+  kidneyDisease: false,
+  chronicDisease: false,
+  chronicDiseaseDetails: '',
+  takingMedications: false,
+  medicationDetails: '',
+  medicationAllergies: false,
+  allergyDetails: '',
+  previousSurgery: false,
+  surgeryDetails: ''
+}
+
 export default function NuraiMedicalAssistant() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome')
-  const [patientInfo, setPatientInfo] = useState<PatientInfo>({
-    fullName: '',
-    age: '',
-    gender: '',
-    patientId: '',
-    mainComplaint: ''
-  })
+  const [patientInfo, setPatientInfo] = useState<PatientInfo>(defaultPatientInfo)
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([])
   const [symptomDetails, setSymptomDetails] = useState<SymptomDetail[]>([])
-  const [emergencyAnswers, setEmergencyAnswers] = useState<EmergencyAnswers>({
-    chestPain: false,
-    shortnessOfBreath: false,
-    fainted: false,
-    severebleeding: false,
-    suddenHeadache: false,
-    onesideWeakness: false,
-    blueLips: false,
-    pregnant: false
-  })
-  const [medicalHistory, setMedicalHistory] = useState<MedicalHistory>({
-    diabetes: false,
-    highBloodPressure: false,
-    heartDisease: false,
-    asthmaOrLungDisease: false,
-    kidneyDisease: false,
-    chronicDisease: false,
-    chronicDiseaseDetails: '',
-    takingMedications: false,
-    medicationDetails: '',
-    medicationAllergies: false,
-    allergyDetails: '',
-    previousSurgery: false,
-    surgeryDetails: ''
-  })
-  const [vitalSigns, setVitalSigns] = useState<VitalSigns>({
-    temperature: '',
-    heartRate: '',
-    bloodPressureSystolic: '',
-    bloodPressureDiastolic: '',
-    oxygenLevel: ''
-  })
+  const [emergencyAnswers, setEmergencyAnswers] = useState<EmergencyAnswers>(defaultEmergencyAnswers)
+  const [medicalHistory, setMedicalHistory] = useState<MedicalHistory>(defaultMedicalHistory)
+  const [vitalSigns, setVitalSigns] = useState<VitalSigns>(defaultVitalSigns)
 
   const resetAssessment = () => {
-    setPatientInfo({
-      fullName: '',
-      age: '',
-      gender: '',
-      patientId: '',
-      mainComplaint: ''
-    })
+    setPatientInfo(defaultPatientInfo)
     setSelectedSymptoms([])
     setSymptomDetails([])
-    setEmergencyAnswers({
-      chestPain: false,
-      shortnessOfBreath: false,
-      fainted: false,
-      severebleeding: false,
-      suddenHeadache: false,
-      onesideWeakness: false,
-      blueLips: false,
-      pregnant: false
-    })
-    setMedicalHistory({
-      diabetes: false,
-      highBloodPressure: false,
-      heartDisease: false,
-      asthmaOrLungDisease: false,
-      kidneyDisease: false,
-      chronicDisease: false,
-      chronicDiseaseDetails: '',
-      takingMedications: false,
-      medicationDetails: '',
-      medicationAllergies: false,
-      allergyDetails: '',
-      previousSurgery: false,
-      surgeryDetails: ''
-    })
-    setVitalSigns({
-      temperature: '',
-      heartRate: '',
-      bloodPressureSystolic: '',
-      bloodPressureDiastolic: '',
-      oxygenLevel: ''
-    })
+    setEmergencyAnswers(defaultEmergencyAnswers)
+    setMedicalHistory(defaultMedicalHistory)
+    setVitalSigns(defaultVitalSigns)
     setCurrentScreen('welcome')
   }
 
@@ -125,14 +98,7 @@ export default function NuraiMedicalAssistant() {
     <main className="min-h-screen">
       <AnimatePresence mode="wait">
         {currentScreen === 'welcome' && (
-          <motion.div
-            key="welcome"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="welcome" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <WelcomeScreen 
               onStart={() => setCurrentScreen('patient-info')} 
               onViewHistory={() => setCurrentScreen('history')}
@@ -141,14 +107,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'patient-info' && (
-          <motion.div
-            key="patient-info"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="patient-info" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <PatientInfoScreen
               patientInfo={patientInfo}
               setPatientInfo={setPatientInfo}
@@ -159,14 +118,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'symptoms' && (
-          <motion.div
-            key="symptoms"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="symptoms" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <SymptomsScreen
               selectedSymptoms={selectedSymptoms}
               setSelectedSymptoms={setSelectedSymptoms}
@@ -177,14 +129,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'symptom-details' && (
-          <motion.div
-            key="symptom-details"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="symptom-details" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <SymptomDetailsScreen
               selectedSymptoms={selectedSymptoms}
               symptomDetails={symptomDetails}
@@ -196,14 +141,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'emergency-questions' && (
-          <motion.div
-            key="emergency-questions"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="emergency-questions" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <EmergencyQuestionsScreen
               emergencyAnswers={emergencyAnswers}
               setEmergencyAnswers={setEmergencyAnswers}
@@ -214,14 +152,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'medical-history' && (
-          <motion.div
-            key="medical-history"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="medical-history" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <MedicalHistoryScreen
               medicalHistory={medicalHistory}
               setMedicalHistory={setMedicalHistory}
@@ -232,14 +163,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'vitals' && (
-          <motion.div
-            key="vitals"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="vitals" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <VitalSignsScreen
               vitalSigns={vitalSigns}
               setVitalSigns={setVitalSigns}
@@ -250,14 +174,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'results' && (
-          <motion.div
-            key="results"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="results" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <ResultsScreen
               patientInfo={patientInfo}
               selectedSymptoms={selectedSymptoms}
@@ -271,14 +188,7 @@ export default function NuraiMedicalAssistant() {
         )}
 
         {currentScreen === 'history' && (
-          <motion.div
-            key="history"
-            variants={pageVariants}
-            initial="initial"
-            animate="in"
-            exit="out"
-            transition={pageTransition}
-          >
+          <motion.div key="history" variants={pageVariants} initial="initial" animate="in" exit="out" transition={pageTransition}>
             <PatientHistoryScreen
               onBack={() => setCurrentScreen('welcome')}
               onNewAssessment={() => setCurrentScreen('patient-info')}
