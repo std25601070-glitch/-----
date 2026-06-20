@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Thermometer, Heart, Activity, Droplets, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Thermometer, Heart, Activity, Droplets, ArrowRight, ArrowLeft, Cpu, Zap, Fingerprint, Radio } from 'lucide-react'
 import type { VitalSigns } from '@/lib/types'
 
 interface VitalSignsScreenProps {
@@ -10,6 +10,63 @@ interface VitalSignsScreenProps {
   onNext: () => void
   onBack: () => void
 }
+
+const sensors = [
+  {
+    name: 'MAX30102',
+    nameAr: 'حساس النبض والأكسجين',
+    desc: 'Heart Rate & SpO2 Sensor',
+    descAr: 'يقيس نبض القلب ونسبة الأكسجين في الدم',
+    icon: Heart,
+    color: 'from-rose-500 to-pink-600',
+    measures: ['Heart Rate', 'SpO2 %'],
+  },
+  {
+    name: 'MLX90614',
+    nameAr: 'حساس الحرارة',
+    desc: 'Infrared Temperature Sensor',
+    descAr: 'يقيس درجة الحرارة بدون تلامس',
+    icon: Thermometer,
+    color: 'from-orange-500 to-red-500',
+    measures: ['Body Temp °C'],
+  },
+  {
+    name: 'EMG Sensor',
+    nameAr: 'حساس النشاط العضلي',
+    desc: 'Electromyography Sensor',
+    descAr: 'يقيس النشاط الكهربائي للعضلات والرعشة',
+    icon: Zap,
+    color: 'from-yellow-500 to-amber-500',
+    measures: ['Muscle Activity', 'Tremor Detection'],
+  },
+  {
+    name: 'Fingerprint Reader',
+    nameAr: 'قارئ البصمة',
+    desc: 'Biometric Authentication',
+    descAr: 'تعريف المريض وحماية البيانات',
+    icon: Fingerprint,
+    color: 'from-indigo-500 to-purple-500',
+    measures: ['Patient ID'],
+  },
+  {
+    name: 'Logic-Level Converter',
+    nameAr: 'محول مستوى الإشارة',
+    desc: 'Signal Interface Module',
+    descAr: 'يضمن التوافق بين الحساسات والـ ESP32',
+    icon: Radio,
+    color: 'from-teal-500 to-cyan-500',
+    measures: ['3.3V ↔ 5V'],
+  },
+  {
+    name: 'ESP32',
+    nameAr: 'وحدة التحكم المركزية',
+    desc: 'Main Microcontroller + Wi-Fi',
+    descAr: 'يجمع البيانات ويرسلها للذكاء الاصطناعي',
+    icon: Cpu,
+    color: 'from-sky-500 to-blue-600',
+    measures: ['Wi-Fi', 'Data Processing'],
+  },
+]
 
 export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: VitalSignsScreenProps) {
   const updateField = (field: keyof VitalSigns, value: string) => {
@@ -27,6 +84,7 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
       color: 'from-orange-500 to-red-500',
       field: 'temperature' as keyof VitalSigns,
       normalRange: '36.1 - 37.2',
+      sensor: 'MLX90614',
     },
     {
       id: 'heartRate',
@@ -38,6 +96,7 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
       color: 'from-rose-500 to-pink-500',
       field: 'heartRate' as keyof VitalSigns,
       normalRange: '60 - 100',
+      sensor: 'MAX30102',
     },
     {
       id: 'bloodPressure',
@@ -49,6 +108,7 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
       color: 'from-purple-500 to-indigo-500',
       field: 'bloodPressureSystolic' as keyof VitalSigns,
       normalRange: '90/60 - 120/80',
+      sensor: 'MAX30102',
     },
     {
       id: 'oxygenLevel',
@@ -60,6 +120,7 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
       color: 'from-cyan-500 to-blue-500',
       field: 'oxygenLevel' as keyof VitalSigns,
       normalRange: '95 - 100',
+      sensor: 'MAX30102',
     },
   ]
 
@@ -98,7 +159,6 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
         >
           {vitals.map((vital, index) => {
             const Icon = vital.icon
-            
             return (
               <motion.div
                 key={vital.id}
@@ -108,44 +168,39 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
                 className="glass-card rounded-2xl p-6"
               >
                 <div className="flex items-start gap-4">
-                  {/* Icon */}
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${vital.color} p-3 flex-shrink-0`}>
                     <Icon className="w-full h-full text-white" />
                   </div>
-
                   <div className="flex-1">
-                    {/* Title */}
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-lg font-semibold text-white">{vital.nameEn}</h3>
                     </div>
-                    <p className="text-sm text-sky-300/70 arabic-text mb-3">{vital.nameAr}</p>
+                    <p className="text-sm text-sky-300/70 arabic-text mb-1">{vital.nameAr}</p>
+                    <span className="text-xs text-sky-400/60 bg-sky-500/10 px-2 py-0.5 rounded-full mb-3 inline-block">
+                      via {vital.sensor}
+                    </span>
 
-                    {/* Input */}
                     {vital.id === 'bloodPressure' ? (
-                      <div className="flex items-center gap-2">
-                        <div className="relative flex-1">
-                          <input
-                            type="number"
-                            value={vitalSigns.bloodPressureSystolic}
-                            onChange={(e) => updateField('bloodPressureSystolic', e.target.value)}
-                            placeholder="120"
-                            className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 transition-all"
-                          />
-                        </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <input
+                          type="number"
+                          value={vitalSigns.bloodPressureSystolic}
+                          onChange={(e) => updateField('bloodPressureSystolic', e.target.value)}
+                          placeholder="120"
+                          className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 transition-all"
+                        />
                         <span className="text-sky-300 text-xl">/</span>
-                        <div className="relative flex-1">
-                          <input
-                            type="number"
-                            value={vitalSigns.bloodPressureDiastolic}
-                            onChange={(e) => updateField('bloodPressureDiastolic', e.target.value)}
-                            placeholder="80"
-                            className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 transition-all"
-                          />
-                        </div>
+                        <input
+                          type="number"
+                          value={vitalSigns.bloodPressureDiastolic}
+                          onChange={(e) => updateField('bloodPressureDiastolic', e.target.value)}
+                          placeholder="80"
+                          className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 transition-all"
+                        />
                         <span className="text-sky-300/70 text-sm ml-1">{vital.unit}</span>
                       </div>
                     ) : (
-                      <div className="relative">
+                      <div className="relative mt-2">
                         <input
                           type="number"
                           step={vital.id === 'temperature' ? '0.1' : '1'}
@@ -160,9 +215,8 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
                       </div>
                     )}
 
-                    {/* Normal Range */}
                     <p className="text-xs text-sky-300/50 mt-2">
-                      Normal range: {vital.normalRange} {vital.unit}
+                      Normal: {vital.normalRange} {vital.unit}
                     </p>
                   </div>
                 </div>
@@ -171,11 +225,63 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
           })}
         </motion.div>
 
+        {/* Sensors Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center">
+              <Cpu className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Hardware Sensors</h2>
+              <p className="text-sm text-sky-300/60 arabic-text">الحساسات المستخدمة في الذراع الذكي</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {sensors.map((sensor, index) => {
+              const Icon = sensor.icon
+              return (
+                <motion.div
+                  key={sensor.name}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 + index * 0.08 }}
+                  className="glass-card rounded-2xl p-4 border border-white/5 hover:border-sky-500/20 transition-all"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${sensor.color} p-3 flex-shrink-0`}>
+                      <Icon className="w-full h-full text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-bold text-sm">{sensor.name}</p>
+                      <p className="text-sky-300/60 text-xs arabic-text">{sensor.nameAr}</p>
+                      <p className="text-sky-200/70 text-xs mt-1">{sensor.desc}</p>
+                      <p className="text-sky-300/50 text-xs arabic-text mt-0.5">{sensor.descAr}</p>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {sensor.measures.map(m => (
+                          <span key={m} className="text-xs bg-white/10 text-sky-300 px-2 py-0.5 rounded-full">
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        </motion.div>
+
         {/* Info Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.9 }}
           className="glass-card rounded-2xl p-5 mt-6"
         >
           <div className="flex items-start gap-3">
@@ -197,7 +303,7 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 1 }}
           className="flex gap-4 mt-8"
         >
           <button
