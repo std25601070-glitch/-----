@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Thermometer, Heart, Activity, Droplets, ArrowRight, ArrowLeft, Cpu, Zap, Fingerprint, Radio } from 'lucide-react'
+import { Thermometer, Heart, Activity, Droplets, ArrowRight, ArrowLeft, Cpu, Zap, Fingerprint, Radio, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
 import type { VitalSigns } from '@/lib/types'
 
 interface VitalSignsScreenProps {
@@ -69,9 +70,46 @@ const sensors = [
 ]
 
 export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: VitalSignsScreenProps) {
+  const [isConnected, setIsConnected] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [lastUpdate, setLastUpdate] = useState<string>('')
+
   const updateField = (field: keyof VitalSigns, value: string) => {
     setVitalSigns({ ...vitalSigns, [field]: value })
   }
+
+  // جيب البيانات من الـ API
+  const fetchVitals = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/vitals')
+      const json = await res.json()
+      if (json.success && json.data.timestamp) {
+        setVitalSigns({
+          temperature: json.data.temperature,
+          heartRate: json.data.heartRate,
+          bloodPressureSystolic: json.data.bloodPressureSystolic,
+          bloodPressureDiastolic: json.data.bloodPressureDiastolic,
+          oxygenLevel: json.data.oxygenLevel,
+        })
+        setIsConnected(true)
+        setLastUpdate(new Date(json.data.timestamp).toLocaleTimeString())
+      } else {
+        setIsConnected(false)
+      }
+    } catch {
+      setIsConnected(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [setVitalSigns])
+
+  // تحديث تلقائي كل 5 ثواني
+  useEffect(() => {
+    fetchVitals()
+    const interval = setInterval(fetchVitals, 5000)
+    return () => clearInterval(interval)
+  }, [fetchVitals])
 
   const vitals = [
     {
@@ -126,7 +164,6 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
 
   return (
     <div className="min-h-screen px-6 py-8 relative overflow-hidden">
-      {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/3 left-1/4 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl" />
@@ -145,9 +182,40 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Vital Signs</h1>
           <p className="text-sky-300/80 arabic-text">العلامات الحيوية</p>
-          <p className="text-sky-300/60 text-sm mt-2">
-            Enter current readings if available (optional)
-          </p>
+        </motion.div>
+
+        {/* Connection Status */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`flex items-center justify-between p-4 rounded-2xl mb-6 border ${
+            isConnected
+              ? 'bg-emerald-500/10 border-emerald-500/30'
+              : 'bg-white/5 border-white/10'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            {isConnected
+              ? <Wifi className="w-5 h-5 text-emerald-400" />
+              : <WifiOff className="w-5 h-5 text-sky-300/40" />
+            }
+            <div>
+              <p className={`text-sm font-medium ${isConnected ? 'text-emerald-400' : 'text-sky-300/60'}`}>
+                {isConnected ? 'ESP32 Connected' : 'Waiting for ESP32...'}
+              </p>
+              {lastUpdate && (
+                <p className="text-xs text-sky-300/40">Last update: {lastUpdate}</p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={fetchVitals}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-4 py-2 bg-sky-500/20 hover:bg-sky-500/30 rounded-xl text-sky-300 text-sm transition-all"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </motion.div>
 
         {/* Vital Signs Cards */}
@@ -172,9 +240,7 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
                     <Icon className="w-full h-full text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-white">{vital.nameEn}</h3>
-                    </div>
+                    <h3 className="text-lg font-semibold text-white">{vital.nameEn}</h3>
                     <p className="text-sm text-sky-300/70 arabic-text mb-1">{vital.nameAr}</p>
                     <span className="text-xs text-sky-400/60 bg-sky-500/10 px-2 py-0.5 rounded-full mb-3 inline-block">
                       via {vital.sensor}
@@ -187,7 +253,7 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
                           value={vitalSigns.bloodPressureSystolic}
                           onChange={(e) => updateField('bloodPressureSystolic', e.target.value)}
                           placeholder="120"
-                          className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 transition-all"
+                          className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 transition-all"
                         />
                         <span className="text-sky-300 text-xl">/</span>
                         <input
@@ -195,9 +261,9 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
                           value={vitalSigns.bloodPressureDiastolic}
                           onChange={(e) => updateField('bloodPressureDiastolic', e.target.value)}
                           placeholder="80"
-                          className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 transition-all"
+                          className="w-full px-4 py-3 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg text-center placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 transition-all"
                         />
-                        <span className="text-sky-300/70 text-sm ml-1">{vital.unit}</span>
+                        <span className="text-sky-300/70 text-sm">{vital.unit}</span>
                       </div>
                     ) : (
                       <div className="relative mt-2">
@@ -207,17 +273,14 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
                           value={vitalSigns[vital.field]}
                           onChange={(e) => updateField(vital.field, e.target.value)}
                           placeholder={vital.placeholder}
-                          className="w-full px-4 py-3 pr-16 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20 transition-all"
+                          className="w-full px-4 py-3 pr-16 bg-white/5 border border-sky-500/20 rounded-xl text-white text-lg placeholder:text-sky-300/40 focus:outline-none focus:border-sky-400/50 transition-all"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-300/70">
                           {vital.unit}
                         </span>
                       </div>
                     )}
-
-                    <p className="text-xs text-sky-300/50 mt-2">
-                      Normal: {vital.normalRange} {vital.unit}
-                    </p>
+                    <p className="text-xs text-sky-300/50 mt-2">Normal: {vital.normalRange} {vital.unit}</p>
                   </div>
                 </div>
               </motion.div>
@@ -274,28 +337,6 @@ export function VitalSignsScreen({ vitalSigns, setVitalSigns, onNext, onBack }: 
                 </motion.div>
               )
             })}
-          </div>
-        </motion.div>
-
-        {/* Info Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="glass-card rounded-2xl p-5 mt-6"
-        >
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center flex-shrink-0">
-              <Activity className="w-5 h-5 text-sky-400" />
-            </div>
-            <div>
-              <p className="text-sm text-sky-200">
-                Vital signs help improve assessment accuracy. Leave blank if measurements are unavailable.
-              </p>
-              <p className="text-sm text-sky-300/70 mt-1 arabic-text">
-                العلامات الحيوية تساعد على تحسين دقة التقييم. اتركها فارغة إذا لم تكن القياسات متوفرة.
-              </p>
-            </div>
           </div>
         </motion.div>
 
